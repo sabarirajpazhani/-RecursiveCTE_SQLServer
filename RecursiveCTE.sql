@@ -37,3 +37,37 @@ with manager as (
 )
 
 select *from manager;
+
+/*2. Get Full Category/Subcategory Tree
+--->>> Business Scenario <<<---
+An e-commerce platform has categories and subcategories (e.g., Electronics → Mobiles → Smartphones → Android).
+Show the entire path/tree of categories starting from a root category.*/
+CREATE TABLE Categories (
+    CategoryID INT,
+    CategoryName VARCHAR(50),
+    ParentCategoryID INT
+);
+
+INSERT INTO Categories VALUES
+(1, 'Electronics', NULL),
+(2, 'Mobiles', 1),
+(3, 'Smartphones', 2),
+(4, 'Android Phones', 3),
+(5, 'Feature Phones', 2),
+(6, 'Accessories', 1);
+
+select * from Categories;
+
+with SubCategory as (
+	select CategoryID, CategoryName, ParentCategoryID from Categories 
+	where CategoryID = 1
+
+	union all
+
+	select c.CategoryID, c.CategoryName, c.ParentCategoryID from Categories c
+	inner join SubCategory s on c.ParentCategoryID = s.CategoryID
+)
+
+select * from SubCategory;
+
+
