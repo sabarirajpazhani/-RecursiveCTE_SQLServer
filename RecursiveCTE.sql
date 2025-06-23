@@ -71,3 +71,36 @@ with SubCategory as (
 select * from SubCategory;
 
 
+/*Q3. Find Folder and All Subfolders in File System
+--->>> Business Scenario <<<---
+A cloud storage system wants to fetch a folder and all nested folders inside it, no matter how deep.*/
+
+
+
+
+
+
+-- Create the table
+CREATE TABLE Products (
+    product_id INT,
+    new_price INT,
+    change_date DATE
+);
+
+-- Insert the data
+INSERT INTO Products (product_id, new_price, change_date) VALUES
+(1, 20, '2019-08-14'),
+(2, 50, '2019-08-14'),
+(1, 30, '2019-08-15'),
+(1, 35, '2019-08-16'),
+(2, 65, '2019-08-17'),
+(3, 20, '2019-08-18');
+
+select * from Products;
+
+with lessthen16 as (
+    select product_id , new_price, change_date from Products
+	where change_date <='2019-08-16'
+)
+select product_id, new_price, change_date, dense_rank() over(partition by productID order by change_date desc) as rank from lessthen16 
+group by  product_id, new_price, change_date
