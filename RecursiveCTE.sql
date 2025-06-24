@@ -104,3 +104,58 @@ where rnk = 1
 union
 select product_id, 10 from products
 where change_date > '2019-08-16' and product_id not in (select Product_id from lessthen16);
+
+
+/*Q4. Bill of Materials (BOM)
+Business Scenario:
+A manufacturing company wants to list all components used to build a product, including sub-components and their components.*/
+CREATE TABLE BillOfMaterials (
+    PartID INT,
+    PartName VARCHAR(50),
+    ParentPartID INT
+);
+
+INSERT INTO BillOfMaterials VALUES
+-- Top-level product
+(1, 'Bicycle', NULL),
+
+-- Components of Bicycle
+(2, 'Frame', 1),
+(3, 'Wheel Set', 1),
+(4, 'Handlebar Set', 1),
+
+-- Components of Frame
+(5, 'Metal Tubes', 2),
+(6, 'Welding Material', 2),
+
+-- Components of Wheel Set
+(7, 'Front Wheel', 3),
+(8, 'Rear Wheel', 3),
+
+-- Sub-components of Wheels
+(9, 'Rim', 7),
+(10, 'Spokes', 7),
+(11, 'Hub', 7),
+(12, 'Rim', 8),
+(13, 'Spokes', 8),
+(14, 'Hub', 8),
+
+-- Components of Handlebar Set
+(15, 'Handlebar', 4),
+(16, 'Brake Levers', 4),
+(17, 'Grips', 4);
+
+select * from  BillOfMaterials;
+
+with products as (
+	select partID, PartName, ParentPartID, PartName as rootPart from BillOfMaterials
+	where partID = 1
+
+	union all
+
+	select b1.partID, b1.PartName, b1.ParentPartID, b.rootPart from BillOfMaterials b1
+	inner join products b on b1.ParentPartID= b.PartID
+)
+
+select * from products
+where partID != 1;
