@@ -58,28 +58,24 @@ INSERT INTO Categories VALUES
 
 select * from Categories;
 
+
 with SubCategory as (
-	select CategoryID, CategoryName, ParentCategoryID from Categories 
-	where CategoryID = 1
+	select c1.CategoryID, c1.CategoryName, c1.ParentCategoryID, c2.CategoryName as Root_category from Categories c1
+	left join Categories c2 on c1.CategoryID = c2.CategoryID
 
 	union all
 
-	select c.CategoryID, c.CategoryName, c.ParentCategoryID from Categories c
+	select c.CategoryID, c.CategoryName, c.ParentCategoryID, s.Root_category from Categories c
 	inner join SubCategory s on c.ParentCategoryID = s.CategoryID
 )
 
-select * from SubCategory;
+select * from SubCategory 
+where ParentCategoryID is not null;
 
 
 /*Q3. Find Folder and All Subfolders in File System
 --->>> Business Scenario <<<---
 A cloud storage system wants to fetch a folder and all nested folders inside it, no matter how deep.*/
-
-
-
-
-
-
 -- Create the table
 CREATE TABLE Products (
     product_id INT,
@@ -99,8 +95,12 @@ INSERT INTO Products (product_id, new_price, change_date) VALUES
 select * from Products;
 
 with lessthen16 as (
-    select product_id , new_price, change_date from Products
+    select product_id , new_price, change_date, dense_rank() over(partition by product_id order by change_date desc) as rnk  from Products
 	where change_date <='2019-08-16'
+	group by product_id,new_price, change_date
 )
-select product_id, new_price, change_date, dense_rank() over(partition by productID order by change_date desc) as rank from lessthen16 
-group by  product_id, new_price, change_date
+select product_id , new_price from lessthen16
+where rnk = 1 
+union
+select product_id, 10 from products
+where change_date > '2019-08-16' and product_id not in (select Product_id from lessthen16);
